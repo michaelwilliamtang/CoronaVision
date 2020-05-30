@@ -1,3 +1,7 @@
+library(tidyverse)
+library(leaflet)
+library(leaflet.extras)
+
 # source: https://covid19.who.int/
 # read country data
 global <- read.csv(file.path(source_dir, "WHO-COVID-19-global-data.csv"), stringsAsFactors = F)
@@ -39,5 +43,4 @@ mp <- mp %>% addCircleMarkers(data = domestic, lng = ~longs, lat = ~lats, radius
                               label = paste(domestic$jurisdiction, ": ", domestic$Total.Death, " deaths, ",
                                             domestic$Total.Cases, " cases", sep = ""))
 
-# display
 mp
