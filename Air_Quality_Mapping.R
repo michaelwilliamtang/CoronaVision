@@ -9,7 +9,7 @@ air_qual <- read.csv(file.path(source_dir, "air_quality.csv"), stringsAsFactors 
 air_qual <- air_qual %>% mutate(longs = Longitude,
                               lats = Latitude,
                               radius = AQI * 0.3,
-                              lab = paste("AQI: ", AQI))
+                              lab = paste(City, ": AQI ", AQI), sep = "")
 
 # plot data
 # mp <- leaflet() %>% addTiles() %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
