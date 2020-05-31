@@ -16,14 +16,15 @@ names(clats) <- countries$name
 names(clongs) <- countries$name
 global <- global %>% mutate(lats = clats[Country],
                             longs = clongs[Country],
-                            radius = 0.1 * cumu_deaths) %>%
+                            radius = cumu_deaths * 0.002) %>%
   na.omit() # sometimes non-states included for high nums, e.g. nyc
 # plot country data
-mp <- leaflet() %>% addTiles() %>% addHeatmap(data = global, lng = ~longs, lat = ~lats, intensity = ~cumu_deaths,
-                                              blur = 20, max = 0.1, radius = 10, group = "COVID-19, Global")
-mp <- mp %>% addCircleMarkers(data = global, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
+# mp <- leaflet() %>% addTiles() %>% addHeatmap(data = global, lng = ~longs, lat = ~lats, intensity = ~cumu_deaths,
+#                                               blur = 20, max = 0.1, radius = 10, group = "COVID-19")
+mp <- leaflet() %>% addTiles() %>%
+  addCircleMarkers(data = global, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "red",
                               label = paste(global$Country, ": ", global$cumu_deaths, " deaths, ",
-                                            global$cumu_cases, " cases", sep = ""), group = "COVID-19, Global")
+                                            global$cumu_cases, " cases", sep = ""), group = "COVID-19")
 
 # source: https://www.cdc.gov/covid-data-tracker/index.html
 # read state data
@@ -35,14 +36,14 @@ names(slats) <- states$name
 names(slongs) <- states$name
 domestic <- domestic %>% mutate(lats = slats[jurisdiction],
                                 longs = slongs[jurisdiction],
-                                radius = 0.1 * Total.Death) %>%
+                                radius = Total.Death * 0.002) %>%
   na.omit() # sometimes non-states included for high nums, e.g. nyc
 # plot state data
-mp <- mp %>% addHeatmap(data = domestic, lng = ~longs, lat = ~lats, intensity = ~Total.Death,
-                        blur = 20, max = 0.1, radius = 10, group = "COVID-19, US")
-mp <- mp %>% addCircleMarkers(data = domestic, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
+# mp <- mp %>% addHeatmap(data = domestic, lng = ~longs, lat = ~lats, intensity = ~Total.Death,
+#                         blur = 20, max = 0.1, radius = 10, group = "COVID-19")
+mp <- mp %>% addCircleMarkers(data = domestic, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "red",
                               label = paste(domestic$jurisdiction, ": ", domestic$Total.Death, " deaths, ",
-                                            domestic$Total.Cases, " cases", sep = ""), group = "COVID-19, US")
+                                            domestic$Total.Cases, " cases", sep = ""), group = "COVID-19")
 
 # source: https://www.waterqualitydata.us/portal/#startDateLo=01-01-2020&startDateHi=05-30-2020&mimeType=csv
 # read, clean, merge water quality data
@@ -60,17 +61,19 @@ samples <- samples %>%
   ungroup()
 comb_df <- merge(stations, samples, by = "MonitoringLocationIdentifier")
 comb_df <- comb_df %>% mutate(longs = LongitudeMeasure,
-                              lats = LatitudeMeasure) 
+                              lats = LatitudeMeasure,
+                              radius = mean_result * 0.03) 
 
 # plot water quality data
-mp <- mp %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
-                                              blur = 20, max = 0.1, radius = 10, group = "Water Contamination (total suspended solids)")
-# mp <- mp %>% addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
-#                               label = paste(comb_df$Country, ": ", comb_df$cumu_deaths, " concentration, ", sep = ""))
+# mp <- mp %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
+#                                               blur = 20, max = 0.1, radius = 10, group = "Water Contamination (total suspended solids)")
+mp <- mp %>%
+  addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "blue",
+                   label = paste(round(comb_df$mean_result, 3), " mg/l", sep = ""), group = "Water Contamination (total suspended solids)")
 
 # layer control
 mp <- mp %>% addLayersControl(
-  overlayGroups = c("COVID-19, US", "COVID-19, Global", "Water Contamination (total suspended solids)"),
+  overlayGroups = c("COVID-19", "Water Contamination (total suspended solids)"),
   options = layersControlOptions(collapsed = FALSE)
 )
 mp

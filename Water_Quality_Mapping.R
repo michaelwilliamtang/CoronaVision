@@ -19,11 +19,13 @@ samples <- samples %>%
   ungroup()
 comb_df <- merge(stations, samples, by = "MonitoringLocationIdentifier")
 comb_df <- comb_df %>% mutate(longs = LongitudeMeasure,
-                              lats = LatitudeMeasure) 
+                              lats = LatitudeMeasure,
+                              radius = mean_result * 0.01) 
 
 # plot data
-mp <- leaflet() %>% addTiles() %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
-                                              blur = 20, max = 0.1, radius = 10)
-# mp <- mp %>% addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
-#                               label = paste(comb_df$Country, ": ", comb_df$cumu_deaths, " concentration, ", sep = ""))
+# mp <- leaflet() %>% addTiles() %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
+#                                               blur = 20, max = 0.1, radius = 10)
+mp <- leaflet() %>% addTiles() %>%
+  addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "blue",
+                              label = paste(round(comb_df$mean_result, 3), " mg/l", sep = ""))
 mp
