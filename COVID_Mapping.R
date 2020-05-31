@@ -15,12 +15,14 @@ names(clats) <- countries$name
 names(clongs) <- countries$name
 global <- global %>% mutate(lats = clats[Country],
                             longs = clongs[Country],
-                            radius = 0.1 * cumu_deaths) %>%
+                            # intensity = cumu_deaths,
+                            radius = cumu_deaths * 0.0015) %>%
   na.omit() # sometimes non-states included for high nums, e.g. nyc
 # plot country data
-mp <- leaflet() %>% addTiles() %>% addHeatmap(data = global, lng = ~longs, lat = ~lats, intensity = ~cumu_deaths,
-                                                    blur = 20, max = 0.1, radius = 15)
-mp <- mp %>% addCircleMarkers(data = global, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
+# mp <- leaflet() %>% addTiles() %>% addHeatmap(data = global, lng = ~longs, lat = ~lats, intensity = ~intensity,
+#                                                     blur = 20, max = 0.0001, radius = 10)
+mp <- leaflet() %>% addTiles()
+mp <- mp %>% addCircleMarkers(data = global, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, fillOpacity = 0.5,
                               label = paste(global$Country, ": ", global$cumu_deaths, " deaths, ",
                                             global$cumu_cases, " cases", sep = ""))
 
@@ -34,12 +36,13 @@ names(slats) <- states$name
 names(slongs) <- states$name
 domestic <- domestic %>% mutate(lats = slats[jurisdiction],
                             longs = slongs[jurisdiction],
-                            radius = 0.1 * Total.Death) %>%
+                            # intensity = Total.Death,
+                            radius = Total.Death * 0.0015) %>%
   na.omit() # sometimes non-states included for high nums, e.g. nyc
 # plot state data
-mp <- mp %>% addHeatmap(data = domestic, lng = ~longs, lat = ~lats, intensity = ~Total.Death,
-                                                    blur = 20, max = 0.1, radius = 15)
-mp <- mp %>% addCircleMarkers(data = domestic, lng = ~longs, lat = ~lats, radius = 10, stroke = F, fillOpacity = 0,
+# mp <- mp %>% addHeatmap(data = domestic, lng = ~longs, lat = ~lats, intensity = ~intensity,
+#                                                     blur = 20, max = 0.0001, radius = 10)
+mp <- mp %>% addCircleMarkers(data = domestic, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, fillOpacity = 0.5,
                               label = paste(domestic$jurisdiction, ": ", domestic$Total.Death, " deaths, ",
                                             domestic$Total.Cases, " cases", sep = ""))
 
