@@ -20,12 +20,13 @@ samples <- samples %>%
 comb_df <- merge(stations, samples, by = "MonitoringLocationIdentifier")
 comb_df <- comb_df %>% mutate(longs = LongitudeMeasure,
                               lats = LatitudeMeasure,
-                              radius = mean_result * 0.01) 
+                              radius = mean_result * 0.01,
+                              lab = paste("Suspended solids: ", round(mean_result, 3), " mg/l", sep = "")) 
 
 # plot data
 # mp <- leaflet() %>% addTiles() %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
 #                                               blur = 20, max = 0.1, radius = 10)
 mp <- leaflet() %>% addTiles() %>%
   addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "blue",
-                              label = paste(round(comb_df$mean_result, 3), " mg/l", sep = ""))
+                              label = ~lab)
 mp
