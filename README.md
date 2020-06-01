@@ -1,2 +1,2 @@
 # CoronaVision
-Smart tracker for COVID-19 and the SARS-CoV-2 virus.
+Smart map connecting environmental factors to the spread of COVID-19.
