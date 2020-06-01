@@ -9,7 +9,7 @@ library(leaflet.extras)
 source_dir <- "Data"
 global <- read.csv(file.path(source_dir, "WHO-COVID-19-global-data.csv"), stringsAsFactors = F)
 global <- global %>% group_by(Country) %>%
-  summarise(cumu_cases = max(Cumulative_cases),
+  dplyr::summarize(cumu_cases = max(Cumulative_cases),
             cumu_deaths = max(Cumulative_deaths))
 countries <- read.csv(file.path(source_dir, "countries.csv"), stringsAsFactors = F) %>%
   mutate(Country = name)
@@ -60,7 +60,7 @@ samples <- samples %>%
   select(ResultMeasureValue, MonitoringLocationIdentifier) %>%
   na.omit() %>% # don't omit based on other vars' nas
   group_by(MonitoringLocationIdentifier) %>%
-  summarize(mean_result = mean(ResultMeasureValue)) %>%
+  dplyr::summarize(mean_result = mean(ResultMeasureValue)) %>%
   ungroup()
 comb_df <- merge(stations, samples, by = "MonitoringLocationIdentifier")
 comb_df <- comb_df %>% mutate(longs = LongitudeMeasure,
