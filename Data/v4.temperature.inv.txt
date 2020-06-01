@@ -1,4 +1,4 @@
-ID           Lat       Lon     Elev-m Station Name                   BI
+ID           Lat       Lon     Elev-m Station_Name                   BI
 ACW00011604  57.7667   11.8667   18.0 SAVE                           45     
 AE000041196  25.3330   55.5170   34.0 SHARJAH_INTER_AIRP             39     
 AEM00041184  25.6170   55.9330   31.0 RAS_AL_KHAIMAH_INTE            17     

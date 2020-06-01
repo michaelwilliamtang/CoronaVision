@@ -58,6 +58,7 @@ samples <- read.csv(file.path(source_dir, "result.csv"), stringsAsFactors = F)
 samples$ResultMeasureValue <- as.numeric(samples$ResultMeasureValue) # remove non-numeric vals
 samples <- samples %>% 
   filter(CharacteristicName == "Total suspended solids") %>%
+  filter(ResultMeasureValue < 3000) %>% # outlier, most values < 1000
   select(ResultMeasureValue, MonitoringLocationIdentifier) %>%
   na.omit() %>% # don't omit based on other vars' nas
   group_by(MonitoringLocationIdentifier) %>%
@@ -66,7 +67,7 @@ samples <- samples %>%
 comb_df <- merge(stations, samples, by = "MonitoringLocationIdentifier")
 comb_df <- comb_df %>% mutate(longs = LongitudeMeasure,
                               lats = LatitudeMeasure,
-                              radius = mean_result * 0.01,
+                              radius = mean_result * 0.03,
                               lab = paste("Suspended solids: ", round(mean_result, 3), " mg/l", sep = "")) 
 
 # plot water quality data
@@ -77,7 +78,6 @@ mp <- mp %>%
                    label = ~lab, group = "Water Contamination")
 
 # read, clean air quality data
-source_dir <- "Data"
 air_qual <- read.csv(file.path(source_dir, "air_quality.csv"), stringsAsFactors = F) %>%
   na.omit()
 air_qual <- air_qual %>% mutate(longs = Longitude,
@@ -92,9 +92,33 @@ mp <- mp %>%
   addCircleMarkers(data = air_qual, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "green",
                    label = ~lab, group = "AQI")
 
+library(tidyverse)
+library(leaflet)
+library(leaflet.extras)
+
+# source: https://data.giss.nasa.gov/gistemp/station_data_v4_globe/#form
+# read, merge temp data
+stations <- read_csv(file.path(source_dir, "v4.temperature.inv.csv")) %>%
+  mutate(Station = ID) %>%
+  na.omit()
+samples <- read_csv(file.path(source_dir, "v4.mean_GISS_homogenized.csv")) %>%
+  na.omit()
+comb_df <- merge(stations, samples, by = "Station")
+comb_df <- comb_df %>% mutate(longs = Lon,
+                              lats = Lat,
+                              radius = mean_2019 * 0.35,
+                              lab = paste("Mean temperature: ", round(mean_2019, 3), " (C)", sep = "")) 
+
+# plot data
+# mp <- leaflet() %>% addTiles() %>% addHeatmap(data = comb_df, lng = ~longs, lat = ~lats, intensity = ~mean_result,
+#                                               blur = 20, max = 0.1, radius = 10)
+mp <- mp %>%
+  addCircleMarkers(data = comb_df, lng = ~longs, lat = ~lats, radius = ~radius, stroke = F, color = "#ff9966",
+                   label = ~lab, group = "Temperature")
+
 # layer control
 mp <- mp %>% addLayersControl(
-  overlayGroups = c("COVID-19", "Water Contamination", "AQI"),
+  overlayGroups = c("COVID-19", "Water Contamination", "AQI", "Temperature"),
   options = layersControlOptions(collapsed = FALSE)
 )
 mp

@@ -1,16 +1,17 @@
-// from NASA GISS temp data, extracts mean 2019 temp per station
-
 import java.io.*;
 import java.util.StringTokenizer;
 
+// cleans NASA GISS temp and station data
 public class Temperature_Cleaner {
-    public static void main(String[] args) throws IOException {
+
+    // extracts mean 2019 temp per station from temp data, converts to csv
+    private static void cleanTempData() throws IOException {
         // input
         BufferedReader br = new BufferedReader(new FileReader("/Users/mt/CoronaVision/Data/v4.mean_GISS_homogenized.txt"));
         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("/Users/mt/CoronaVision/Data/v4.mean_GISS_homogenized.csv")));
 
         // headers
-        pw.println("Station,2019_mean");
+        pw.println("Station,mean_2019");
 
         // data
         String line = br.readLine();
@@ -50,5 +51,33 @@ public class Temperature_Cleaner {
         System.out.println(present + " stations with full 2019 data out of " + stations + " stations, or about " +
                 Math.round((double) present / stations * 100) + " percent");
         pw.close();
+    }
+
+    // converts station data to csv
+    private static void cleanStationData() throws IOException {
+        // input
+        BufferedReader br = new BufferedReader(new FileReader("/Users/mt/CoronaVision/Data/v4.temperature.inv.txt"));
+        PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("/Users/mt/CoronaVision/Data/v4.temperature.inv.csv")));
+
+        // headers + data
+        String line = br.readLine();
+        while (line != null) {
+            StringTokenizer st = new StringTokenizer(line);
+            while (true) {
+                String tok = st.nextToken();
+                if (tok.equals("*")) continue;
+                pw.print(tok);
+                if (st.hasMoreTokens()) pw.print(",");
+                else break;
+            }
+            pw.println();
+            line = br.readLine();
+        }
+        pw.close();
+    }
+
+    public static void main(String[] args) throws IOException {
+        cleanTempData();
+//        cleanStationData();
     }
 }
